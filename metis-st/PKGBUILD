@@ -1,0 +1,28 @@
+# Maintainer: iyamnabeen <iym.nabeen@gmail.com>
+
+pkgname=metis-st
+pkgver=1.0
+pkgrel=2
+pkgdesc="simple terminal for @metis-os"
+url="https://github.com/metis-os/core-utils"
+arch=('any')
+license=('GPL3')
+makedepends=()
+depends=()
+conflicts=()
+groups=(core-utils)
+provides=("${pkgname}")
+options=(!strip !emptydirs)
+
+prepare() {
+	cp -af ../source/. ${srcdir}
+}
+
+package() {
+      cd "${_pkgname}"
+      make PREFIX=/usr DESTDIR="${pkgdir}" install
+      install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+      install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+      install -Dm644 Xdefaults "${pkgdir}/usr/share/doc/${pkgname}/Xdefaults.example"
+  }
+

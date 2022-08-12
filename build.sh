@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## Copyright (C) 2021-2022 Nabeen Tiwaree <iym.nabeen@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+## Everyone is permitted to copy and distribute copies of this file under MIT
 
 #dir definations
 PKGDIR=~/projects/metis/metis-repo/

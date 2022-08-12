@@ -7,15 +7,14 @@ pkgdesc="Dmenu launcher for  @metis-os"
 url="https://github.com/metis-os/core-utils"
 arch=('any')
 license=('GPL3')
-makedepends=()
-depends=()
-conflicts=()
+depends=(glibc  fontconfig  libx11  libxft)
+conflicts=(metis-st)
 groups=(core-utils)
 provides=("${pkgname}")
 options=(!strip !emptydirs)
 
 prepare() {
-	cp -af ../source/. ${srcdir}
+	cp -af ../files/. ${srcdir}
 }
 
 package() {

@@ -19,7 +19,7 @@ options=(!strip !emptydirs)
 install="${pkgname}.install"
 
 prepare() {
-	cp -af ../source/. ${srcdir}
+	cp -af ../files/. ${srcdir}
 }
 
 build() {

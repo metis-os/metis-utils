@@ -13,7 +13,7 @@ options=(zipman)
 depends=('libx11' 'libxinerama' 'libxft' 'alsa-utils' 
 )
 groups=(core-utils)
-conflicts=('slstatus')
+conflicts=('metis-slstatus')
 provides=("${pkgname}")
 options=(!strip !emptydirs)
 install="${pkgname}.install"

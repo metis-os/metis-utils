@@ -16,6 +16,7 @@
 #endif
 #include <X11/Xft/Xft.h>
 #include <X11/Xresource.h>
+#include <X11/extensions/shape.h>
 
 #include "drw.h"
 #include "util.h"
@@ -238,6 +239,45 @@ drawmenu(void)
 		}
 	}
 	drw_map(drw, win, 0, 0, mw, mh);
+}
+
+void
+round_corners(Window w, int rad)
+{
+	/* Yanked from https://github.com/dylanaraps/sowm/pull/58 */
+	unsigned int ww, wh, dia = 2 * rad;
+
+	XWindowAttributes wa;
+	XGetWindowAttributes(dpy, w, &wa);
+	ww = wa.width;
+	wh = wa.height;
+
+	if (ww < dia || wh < dia) return;
+
+	Pixmap mask = XCreatePixmap(dpy, w, ww, wh, 1);
+
+	if (!mask) return;
+
+	XGCValues xgcv;
+	GC shape_gc = XCreateGC(dpy, mask, 0, &xgcv);
+
+	if (!shape_gc) {
+		XFreePixmap(dpy, mask);
+		return;
+	}
+
+	XSetForeground(dpy, shape_gc, 0);
+	XFillRectangle(dpy, mask, shape_gc, 0, 0, ww, wh);
+	XSetForeground(dpy, shape_gc, 1);
+	XFillArc(dpy, mask, shape_gc, 0, 0, dia, dia, 0, 23040);
+	XFillArc(dpy, mask, shape_gc, ww-dia-1, 0, dia, dia, 0, 23040);
+	XFillArc(dpy, mask, shape_gc, 0, wh-dia-1, dia, dia, 0, 23040);
+	XFillArc(dpy, mask, shape_gc, ww-dia-1, wh-dia-1, dia, dia, 0, 23040);
+	XFillRectangle(dpy, mask, shape_gc, rad, 0, ww-dia, wh);
+	XFillRectangle(dpy, mask, shape_gc, 0, rad, ww, wh-dia);
+	XShapeCombineMask(dpy, w, ShapeBounding, 0, 0, mask, ShapeSet);
+	XFreePixmap(dpy, mask);
+	XFreeGC(dpy, shape_gc);
 }
 
 static void
@@ -895,6 +935,7 @@ setup(void)
 	}
 	drw_resize(drw, mw, mh);
 	drawmenu();
+	round_corners(win, roundcorners);
 }
 
 static void

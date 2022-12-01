@@ -16,6 +16,7 @@
 #endif
 #include <X11/Xft/Xft.h>
 #include <X11/Xresource.h>
+#include <X11/extensions/shape.h>
 
 #include "drw.h"
 #include "util.h"
@@ -138,6 +139,15 @@ calcoffsets(void)
 			break;
 }
 
+static int
+max_textw(void)
+{
+	int len = 0;
+	for (struct item *item = items; item && item->text; item++)
+		len = MAX(TEXTW(item->text), len);
+	return len;
+}
+
 static void
 cleanup(void)
 {
@@ -229,6 +239,45 @@ drawmenu(void)
 		}
 	}
 	drw_map(drw, win, 0, 0, mw, mh);
+}
+
+void
+round_corners(Window w, int rad)
+{
+	/* Yanked from https://github.com/dylanaraps/sowm/pull/58 */
+	unsigned int ww, wh, dia = 2 * rad;
+
+	XWindowAttributes wa;
+	XGetWindowAttributes(dpy, w, &wa);
+	ww = wa.width;
+	wh = wa.height;
+
+	if (ww < dia || wh < dia) return;
+
+	Pixmap mask = XCreatePixmap(dpy, w, ww, wh, 1);
+
+	if (!mask) return;
+
+	XGCValues xgcv;
+	GC shape_gc = XCreateGC(dpy, mask, 0, &xgcv);
+
+	if (!shape_gc) {
+		XFreePixmap(dpy, mask);
+		return;
+	}
+
+	XSetForeground(dpy, shape_gc, 0);
+	XFillRectangle(dpy, mask, shape_gc, 0, 0, ww, wh);
+	XSetForeground(dpy, shape_gc, 1);
+	XFillArc(dpy, mask, shape_gc, 0, 0, dia, dia, 0, 23040);
+	XFillArc(dpy, mask, shape_gc, ww-dia-1, 0, dia, dia, 0, 23040);
+	XFillArc(dpy, mask, shape_gc, 0, wh-dia-1, dia, dia, 0, 23040);
+	XFillArc(dpy, mask, shape_gc, ww-dia-1, wh-dia-1, dia, dia, 0, 23040);
+	XFillRectangle(dpy, mask, shape_gc, rad, 0, ww-dia, wh);
+	XFillRectangle(dpy, mask, shape_gc, 0, rad, ww, wh-dia);
+	XShapeCombineMask(dpy, w, ShapeBounding, 0, 0, mask, ShapeSet);
+	XFreePixmap(dpy, mask);
+	XFreeGC(dpy, shape_gc);
 }
 
 static void
@@ -798,6 +847,7 @@ setup(void)
 	bh = MAX(bh, lineheight);
 	lines = MAX(lines, 0);
 	mh = (lines + 1) * bh;
+	promptw = (prompt && *prompt) ? TEXTW(prompt) - lrpad / 4 : 0;
 #ifdef XINERAMA
 	i = 0;
 	if (parentwin == root && (info = XineramaQueryScreens(dpy, &n))) {
@@ -824,9 +874,16 @@ setup(void)
 				if (INTERSECT(x, y, 1, 1, info[i]))
 					break;
 
-		x = info[i].x_org;
-		y = info[i].y_org + (topbar ? 0 : info[i].height - mh);
-		mw = info[i].width;
+		if (centered) {
+			mw = MIN(MAX(max_textw() + promptw, min_width), info[i].width);
+			x = info[i].x_org + ((info[i].width  - mw) / 2);
+			y = info[i].y_org + ((info[i].height - mh) / 2);
+		} else {
+			x = info[i].x_org;
+			y = info[i].y_org + (topbar ? 0 : info[i].height - mh);
+			mw = info[i].width;
+		}
+
 		XFree(info);
 	} else
 #endif
@@ -834,11 +891,17 @@ setup(void)
 		if (!XGetWindowAttributes(dpy, parentwin, &wa))
 			die("could not get embedding window attributes: 0x%lx",
 			    parentwin);
-		x = 0;
-		y = topbar ? 0 : wa.height - mh;
-		mw = wa.width;
+
+		if (centered) {
+			mw = MIN(MAX(max_textw() + promptw, min_width), wa.width);
+			x = (wa.width  - mw) / 2;
+			y = (wa.height - mh) / 2;
+		} else {
+			x = 0;
+			y = topbar ? 0 : wa.height - mh;
+			mw = wa.width;
+		}
 	}
-	promptw = (prompt && *prompt) ? TEXTW(prompt) - lrpad / 4 : 0;
 	inputw = MIN(inputw, mw/3);
 	match();
 
@@ -872,6 +935,7 @@ setup(void)
 	}
 	drw_resize(drw, mw, mh);
 	drawmenu();
+	round_corners(win, roundcorners);
 }
 
 static void
@@ -922,6 +986,8 @@ main(int argc, char *argv[])
 			topbar = 0;
 		else if (!strcmp(argv[i], "-f"))   /* grabs keyboard before reading stdin */
 			fast = 1;
+		else if (!strcmp(argv[i], "-c"))   /* centers dmenu on screen */
+			centered = 1;
 		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;

@@ -2,7 +2,7 @@
 
 pkgname=metis-st
 pkgver=1.3
-pkgrel=5
+pkgrel=6
 pkgdesc="simple terminal for @metis-os"
 url="https://github.com/metis-os/core-utils"
 arch=('any')

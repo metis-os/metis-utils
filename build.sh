@@ -14,7 +14,8 @@ dir_check(){
 build_pkg(){
     cd metis-dmenu && makepkg -s && mv *.pkg.tar.zst "$PKGDIR" && rm -rf src pkg
     cd ../metis-slstatus && makepkg -s && mv *.pkg.tar.zst "$PKGDIR" && rm -rf src pkg
-    cd ../metis-st && makepkg -s && mv *.pkg.tar.zst "$PKGDIR" && rm -rf src pkg 
+    cd ../metis-st && makepkg -s && mv *.pkg.tar.zst "$PKGDIR" && rm -rf src pkg
+    cd ../metis-nvim && makepkg -s && mv *.pkg.tar.zst "$PKGDIR" && rm -rf src pkg 
 
 }
 dir_check

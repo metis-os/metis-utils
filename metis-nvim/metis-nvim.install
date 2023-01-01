@@ -1,0 +1,8 @@
+post_install() {
+	echo "
+	please run:
+		$ cp -r /etc/skel/.config/nvim ~/.config/nvim
+  
+    "
+
+}

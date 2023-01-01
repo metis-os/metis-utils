@@ -1,0 +1,25 @@
+# Maintainer: pwnwriter < hey dot pwnwriter at tuta.io >
+# Source   : <nvchad.com>
+
+pkgname=metis-nvim
+pkgver=0.0
+pkgrel=1
+pkgdesc="Neovim configuration for metis-os"
+url="https://github.com/metis-os/metis-nvim"
+arch=('any')
+license=('GPL3')
+options=(zipman)
+depends=('neovim' 
+)
+provides=("${pkgname}")
+options=(!strip !emptydirs)
+install=${pkgname}.install
+prepare() {
+	cp -af ../source/. ${srcdir}
+}
+
+package() {
+  local _configdir=${pkgdir}/etc/skel/.config
+  mkdir -p "$_configdir"
+  cp -r ${srcdir}/nvim "$_configdir"
+}

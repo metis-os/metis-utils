@@ -2,8 +2,8 @@
 # Source   : <nvchad.com>
 
 pkgname=metis-nvim
-pkgver=0.0
-pkgrel=1
+pkgver=2.0
+pkgrel=0
 pkgdesc="Neovim configuration for metis-os"
 url="https://github.com/metis-os/metis-nvim"
 arch=('any')

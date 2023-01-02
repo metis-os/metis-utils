@@ -1,8 +1,8 @@
 # Maintainer: iyamnabeen <iym.nabeen@gmail.com>
 
 pkgname=metis-dmenu
-pkgver=1.3
-pkgrel=6
+pkgver=2.0
+pkgrel=0
 pkgdesc="Dmenu launcher for  @metis-os"
 url="https://github.com/metis-os/core-utils"
 arch=('any')

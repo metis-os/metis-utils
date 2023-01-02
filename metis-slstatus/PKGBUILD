@@ -1,16 +1,14 @@
-# Maintainer: iyamnabeen 
-# gmail:  <iym.nabeen@gmail.com>
-# github: <github.com/iyamnabeen>
+# Maintainer: pwnwriter <hey.nabeen@tuta.io>  
 
 pkgname=metis-slstatus
-pkgver=1.3
-pkgrel=6
+pkgver=2.0
+pkgrel=0
 pkgdesc="slstatus for metis-os"
 url="https://github.com/metis-os/metis-slstatus"
 arch=('any')
 license=('GPL3')
 options=(zipman)
-depends=('libx11' 'libxinerama' 'libxft' 'alsa-utils' 
+depends=('libx11' 'libxinerama' 'libxft'  
 )
 groups=(core-utils)
 conflicts=('metis-slstatus')
